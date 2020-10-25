@@ -64,12 +64,12 @@ class CheckSlip:
                     account_number_verified = True
                     break
 
-        print('account number verified', account_number_verified)
+        # print('account number verified', account_number_verified)
         return account_number_verified
 
     def check_payment(self, amount):
         min_distance, best_match = self.extract_matches(self.__payment_identifiers)
-        print('transaction check', min_distance, best_match)
+        # print('transaction check', min_distance, best_match)
 
         payment_verified = False
         if best_match is not None:
@@ -80,23 +80,23 @@ class CheckSlip:
                 ss += i[0]
 
             rr = re.findall("[-+]?[0]?[\d]+(?:,\d\d\d)*[\.]?\d*(?:[eE][-+]?\d+)?", ss)
-            print(rr)
+            # print(rr)
 
             if len(rr) > 0:
                 if amount == float(rr[0].replace(',','')):
-                    print('payment verified')
+                    # print('payment verified')
                     payment_verified = True
         return payment_verified
 
     def check_transaction_number(self):
         min_distance, best_match = self.extract_matches(self.__transaction_identifiers)
-        print('transaction check', min_distance, best_match)
+        # print('transaction check', min_distance, best_match)
 
         possible_trans_no_parts = []
         confidence = 100
         if best_match is not None:
             possible_values = self.get_row_values(best_match)
-            print(possible_values)
+            # print(possible_values)
 
             for value in possible_values:
                 have_number = bool(re.search(r'\d', value[0]))
@@ -106,7 +106,7 @@ class CheckSlip:
                     if int(value[1]) < confidence and int(value[1]) != -1:
                         confidence = int(value[1])
 
-        print(possible_trans_no_parts, confidence)
+        # print(possible_trans_no_parts, confidence)
         ss = ''
         for i in possible_trans_no_parts:
             ss += i

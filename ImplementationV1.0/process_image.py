@@ -43,7 +43,7 @@ class ProcessImage:
                 max_area_cnt = cnt
                 # print(len(cnt), 'max area', area )
 
-        print('Max contour area percentage {0}'.format(float(max_area / self.__total_image_area)))
+        # print('Max contour area percentage {0}'.format(float(max_area / self.__total_image_area)))
 
         if max_area > self.__total_image_area * 0.5:
             return max_area_cnt
