@@ -62,7 +62,7 @@ class ProcessQueue(Process):
                 request['amountVerified'] = result['amount_verified']
                 request['transactionId'] = result['transaction_number']
                 request['confidenceValue'] = result['confidence']
-                request['confidenceLevel'] = 'MEDIUM'
+                request['confidenceLevel'] = 'MEDIUM' if 33 < result['confidence'] < 66 else 'LOW' if result['confidence'] <= 33 else 'HIGH'
 
                 db_connector.insert_data(record=request)
                 # os.remove(file_name)
