@@ -195,7 +195,7 @@ class ProcessImage:
 
 
 if __name__ == '__main__':
-    process_image = ProcessImage('test_data/1602139426.jpg')
+    process_image = ProcessImage('../test_data/1602139426.jpg')
     thresholded_image = process_image.get_processed_image()
 
     cv2.imshow('thresholded image', thresholded_image)

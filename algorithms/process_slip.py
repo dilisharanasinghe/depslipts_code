@@ -1,8 +1,7 @@
 import os
-import cv2
-from check_slip import CheckSlip
-from process_image import ProcessImage
-from extract_characters import ExtractCharacters
+from algorithms.check_slip import CheckSlip
+from algorithms.process_image import ProcessImage
+from algorithms.extract_characters import ExtractCharacters
 
 
 class ProcessSlip:
@@ -27,26 +26,26 @@ class ProcessSlip:
         # cv2.waitKey(0)
         # cv2.destroyAllWindows()
 
-        return  {'account_verified': account_verified,
-                 'amount_verified': amount_verified,
-                 'transaction_number': transaction_number,
-                 'confidence': confidence}
+        return {'account_verified': account_verified,
+                'amount_verified': amount_verified,
+                'transaction_number': transaction_number,
+                'confidence': confidence}
 
 
 if __name__ == '__main__':
     pass
     special_check = None  # '1599152317.jpg'
     with open('total_results.txt', 'w') as f:
-        for root, dirs, files in os.walk("test_data", topdown=False):
+        for root, dirs, files in os.walk("../test_data", topdown=False):
             for name in files:
                 if special_check is not None:
                     if special_check in name:
                         path = os.path.join(root, name)
                         s = 'File path {0}\n'.format(path)
                         print(s)
-                        print(ProcessSlip.do_the_thing(path))
+                        f.write(str(ProcessSlip.do_the_thing(path)))
                 else:
                     path = os.path.join(root, name)
                     s = 'File path {0}\n'.format(path)
                     print(s)
-                    print(ProcessSlip.do_the_thing(path))
+                    f.write(str(ProcessSlip.do_the_thing(path)))

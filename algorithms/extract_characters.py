@@ -43,7 +43,7 @@ class ExtractCharacters:
                                 details['width'][sequence_number], details['height'][sequence_number])
                 image = cv2.rectangle(image, (x, y), (x + w, y + h), (0, 255, 0), 2)
         # saving image to local
-        cv2.imwrite('captured_text_area.png', image)
+        cv2.imwrite('../captured_text_area.png', image)
         # display image
         # cv2.imshow('captured text', image)
         # Maintain output window until user presses a key
@@ -83,11 +83,11 @@ class ExtractCharacters:
         :return: None
         """
 
-        with open('resulted_text.txt', 'w', newline="") as file:
+        with open('../resulted_text.txt', 'w', newline="") as file:
             csv.writer(file, delimiter=" ").writerows(formatted_text)
 
         output = None
-        with open('resulted_text.txt', 'r') as f:
+        with open('../resulted_text.txt', 'r') as f:
             output = f.read()
 
         return output
