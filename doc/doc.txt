@@ -1,0 +1,44 @@
+DOC for Machine Learning Component of DeptSlips
+
+1.Queue a slip
+    POST /slips
+
+    ---- Request ----
+    Body : JSON
+
+    {
+        slipId : ""
+        token : "",
+        accountNumber : "",
+        transactionValue : "",
+        imageUrl : ""
+    }
+
+    ---- Response ----
+
+    Body :
+    {
+        success : boolean or something,
+        message : ""
+    }
+
+2.When image is done processing
+    PATCH deposits.egosurf.lk/ml/slips/:id
+
+    ---- Request ----
+    Headers :
+    {
+        Authorization : Bearer ${token}
+    }
+    Body : JSON
+    {
+        slipId : slip id passed in the initial request,
+        confidenceLevel : enum (HIGH/MEDIUM/LOW),
+        confidenceValue : percentage,
+        accountNumberVerified : boolean - extracted from image processing,
+        transactionValueVerified : boolean - extracted from image processing,
+        transactionId : extracted from image processing,
+    }
+
+    ---- Response ----
+     200 - OK

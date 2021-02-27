@@ -3,8 +3,10 @@ import tornado.httpserver, tornado.ioloop, tornado.options, tornado.web
 from multiprocessing import Process, Queue
 from algorithms.process_slip import ProcessSlip
 from database.database_connector import DatabaseConnector
+from requests.feedback import ProcessingDone
 import json
 import os
+import urllib.request
 
 
 queue_request = Queue()
@@ -13,7 +15,7 @@ queue_request = Queue()
 class Application(tornado.web.Application):
     def __init__(self):
         handlers = [
-            (r"/upload", UploadHandler)
+            (r"/slips", UploadHandler)
         ]
         tornado.web.Application.__init__(self, handlers)
 
@@ -21,17 +23,18 @@ class Application(tornado.web.Application):
 class UploadHandler(tornado.web.RequestHandler, metaclass=ABCMeta):
     def post(self):
         try:
-            slip_id = self.request.headers['SlipId']
-            user_id = self.request.headers['UserId']
-            image_url = self.request.headers['ImageUrl']
-            amount = self.request.headers['Amount']
-            account_number = self.request.headers['Account-Number']
+            json_msg = json.loads(self.request.body)
+            slip_id = json_msg['slipId']
+            image_url = json_msg['imageUrl']
+            transaction_value = json_msg['transactionValue']
+            account_number = json_msg['accountNumber']
+            token = json_msg['token']
 
             queue_request.put({'slipId': slip_id,
-                               'userId': user_id,
                                'imageUrl': image_url,
-                               'amount': amount,
-                               'accountNumber': account_number})
+                               'transactionValue': transaction_value,
+                               'accountNumber': account_number,
+                               'token': token})
 
             self.write(json.dumps({'success': True, 'message': 'Request Queued'}))
         except Exception as e:
@@ -52,21 +55,27 @@ class ProcessQueue(Process):
             try:
                 request = self.__queue_input.get()
                 file_name = 'temp_images/temp_image_{0}.jpg'.format(self.__process_number)
-                # urllib.request.urlretrieve(request['imageUrl'], file_name)
+                urllib.request.urlretrieve(request['imageUrl'], file_name)
                 result = self.__process_slip.do_the_thing(filename=file_name,
-                                                          amount=int(request['amount']),
+                                                          amount=int(request['transactionValue']),
                                                           account_number=request['accountNumber'])
                 print(result)
 
-                request['accountNumberVerified'] = result['account_verified']
-                request['amountVerified'] = result['amount_verified']
-                request['transactionId'] = result['transaction_number']
-                request['confidenceValue'] = result['confidence']
-                request['confidenceLevel'] = 'MEDIUM' if 33 < result['confidence'] < 66 else 'LOW' if result['confidence'] <= 33 else 'HIGH'
+                request_body = {'slipId': request['slipId'],
+                                'confidenceLevel': 'MEDIUM' if 33 < result['confidence'] < 66 else 'LOW' if result['confidence'] <= 33 else 'HIGH',
+                                'confidenceValue': result['confidence'],
+                                'accountNumberVerified': request['account_verified'],
+                                'transactionValueVerified': request['amount_verified'],
+                                'transactionId': result['transaction_number']}
+
+                ProcessingDone.patch({'token': request['token'],
+                                      'slipId': request['slipId'],
+                                      'body': json.dumps(request_body)})
 
                 db_connector.insert_data(record=request)
                 # os.remove(file_name)
             except Exception as e:
+                print('Exception ', e)
                 pass
 
 
