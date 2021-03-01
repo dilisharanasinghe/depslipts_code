@@ -73,7 +73,7 @@ class ProcessQueue(Process):
                                       'body': json.dumps(request_body)})
 
                 db_connector.insert_data(record=request)
-                # os.remove(file_name)
+                os.remove(file_name)
             except Exception as e:
                 print('Exception ', e)
                 pass

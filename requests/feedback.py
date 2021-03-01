@@ -8,7 +8,7 @@ class ProcessingDone:
     @staticmethod
     def patch(data):
         try:
-            request = HTTPRequest(url='http://deposits.egosurf.lk/ml/slips/{0}'.format(data['slipId']),
+            request = HTTPRequest(url='http://www.deposits.egosurf.lk/ml/slips/{0}'.format(data['slipId']),
                                   method='PATCH',
                                   headers={'Authorization': 'Bearer {0}'.format(data['token'])},
                                   body=data['body'])
