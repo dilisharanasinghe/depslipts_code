@@ -55,7 +55,7 @@ class ProcessQueue(Process):
             try:
                 request = self.__queue_input.get()
                 file_name = 'temp_images/temp_image_{0}.jpg'.format(self.__process_number)
-                urllib.request.urlretrieve(request['imageUrl'], file_name)
+                # urllib.request.urlretrieve(request['imageUrl'], file_name)
                 result = self.__process_slip.do_the_thing(filename=file_name,
                                                           amount=int(request['transactionValue']),
                                                           account_number=request['accountNumber'])
@@ -64,18 +64,19 @@ class ProcessQueue(Process):
                 request_body = {'slipId': request['slipId'],
                                 'confidenceLevel': 'MEDIUM' if 33 < result['confidence'] < 66 else 'LOW' if result['confidence'] <= 33 else 'HIGH',
                                 'confidenceValue': result['confidence'],
-                                'accountNumberVerified': request['account_verified'],
-                                'transactionValueVerified': request['amount_verified'],
+                                'accountNumberVerified': result['account_verified'],
+                                'transactionValueVerified': result['amount_verified'],
                                 'transactionId': result['transaction_number']}
 
                 ProcessingDone.patch({'token': request['token'],
                                       'slipId': request['slipId'],
                                       'body': json.dumps(request_body)})
 
-                db_connector.insert_data(record=request)
-                os.remove(file_name)
+                # db_connector.insert_data(record=request)
+                # os.remove(file_name)
             except Exception as e:
                 print('Exception ', e)
+                # raise e
                 pass
 
 

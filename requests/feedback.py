@@ -8,6 +8,7 @@ class ProcessingDone:
     @staticmethod
     def patch(data):
         try:
+            print('data', data)
             request = HTTPRequest(url='http://www.deposits.egosurf.lk/ml/slips/{0}'.format(data['slipId']),
                                   method='PATCH',
                                   headers={'Authorization': 'Bearer {0}'.format(data['token'])},
@@ -16,7 +17,7 @@ class ProcessingDone:
 
             response = http_client.fetch(request)
         except HTTPError as e:
-            print('Processing done feedback error', e)
+            print('Processing done feedback HTTPError', e)
         except Exception as e:
             print('Processing done feedback error', e)
 
