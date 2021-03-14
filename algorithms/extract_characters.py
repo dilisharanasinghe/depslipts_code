@@ -2,7 +2,7 @@ import pytesseract
 import cv2
 import csv
 
-pytesseract.pytesseract.tesseract_cmd = r'D:\Program Files\Tesseract-OCR\tesseract.exe'
+# pytesseract.pytesseract.tesseract_cmd = r'D:\Program Files\Tesseract-OCR\tesseract.exe'
 
 
 class ExtractCharacters:
