@@ -56,11 +56,13 @@ class ProcessQueue(Process):
                 request = self.__queue_input.get()
                 file_name = 'temp_images/temp_image_{0}.jpg'.format(self.__process_number)
                 urllib.request.urlretrieve(request['imageUrl'], file_name)
+
                 result = self.__process_slip.do_the_thing(filename=file_name,
                                                           amount=int(request['transactionValue']),
                                                           account_number=request['accountNumber'])
                 print('-' * 50)
-                print(request['imageUrl'], result)
+                print(request)
+                print(result)
                 print('-' * 50)
 
                 request_body = {'slipId': request['slipId'],
