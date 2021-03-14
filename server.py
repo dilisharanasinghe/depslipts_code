@@ -2,7 +2,7 @@ from abc import ABCMeta
 import tornado.httpserver, tornado.ioloop, tornado.options, tornado.web
 from multiprocessing import Process, Queue
 from algorithms.process_slip import ProcessSlip
-from database.database_connector import DatabaseConnector
+# from database.database_connector import DatabaseConnector
 from requests.feedback import ProcessingDone
 import json
 import os
@@ -50,16 +50,18 @@ class ProcessQueue(Process):
         self.__queue_input = queue_input
 
     def run(self):
-        db_connector = DatabaseConnector()
+        # db_connector = DatabaseConnector()
         while True:
             try:
                 request = self.__queue_input.get()
                 file_name = 'temp_images/temp_image_{0}.jpg'.format(self.__process_number)
-                # urllib.request.urlretrieve(request['imageUrl'], file_name)
+                urllib.request.urlretrieve(request['imageUrl'], file_name)
                 result = self.__process_slip.do_the_thing(filename=file_name,
                                                           amount=int(request['transactionValue']),
                                                           account_number=request['accountNumber'])
-                print(result)
+                print('-' * 50)
+                print(request['imageUrl'], result)
+                print('-' * 50)
 
                 request_body = {'slipId': request['slipId'],
                                 'confidenceLevel': 'MEDIUM' if 33 < result['confidence'] < 66 else 'LOW' if result['confidence'] <= 33 else 'HIGH',
@@ -73,7 +75,7 @@ class ProcessQueue(Process):
                                       'body': json.dumps(request_body)})
 
                 # db_connector.insert_data(record=request)
-                # os.remove(file_name)
+                os.remove(file_name)
             except Exception as e:
                 print('Exception ', e)
                 # raise e
