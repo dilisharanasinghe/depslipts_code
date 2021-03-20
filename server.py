@@ -57,12 +57,22 @@ class ProcessQueue(Process):
                 print('-' * 50)
                 print(request)
                 file_name = 'temp_images/temp_image_{0}.jpg'.format(self.__process_number)
-                urllib.request.urlretrieve(request['imageUrl'], file_name)
+                try:
+                    # print(request['imageUrl'])
+                    opener = urllib.request.build_opener()
+                    opener.addheaders = [('User-agent', 'Mozilla/5.0')]
+                    urllib.request.install_opener(opener)
+
+                    urllib.request.urlretrieve(request['imageUrl'], file_name)
+                except Exception as e:
+                    print(e)
+                    continue
+                print('downloaded')
 
                 result = self.__process_slip.do_the_thing(filename=file_name,
                                                           amount=int(request['transactionValue']),
                                                           account_number=request['accountNumber'])
-                
+
                 print(result)
                 print('-' * 50)
 
