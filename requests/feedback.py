@@ -11,8 +11,10 @@ class ProcessingDone:
             # print('data', data)
             request = HTTPRequest(url='http://deposits.egosurf.lk/api/ml/slips/{0}'.format(data['slipId']),
                                   method='PATCH',
-                                  headers={'Authorization': 'Bearer {0}'.format(data['token'])},
-                                  body=data['body'])
+                                  headers={'Authorization': 'Bearer {0}'.format(data['token']),
+                                           'Content-Type': 'application/json'},
+                                  body=data['body'],
+                                  allow_nonstandard_methods=True)
             http_client = HTTPClient()
 
             response = http_client.fetch(request)
