@@ -67,7 +67,7 @@ class ProcessQueue(Process):
                 except Exception as e:
                     print(e)
                     continue
-                print('downloaded')
+                print('Image downloaded')
 
                 result = self.__process_slip.do_the_thing(filename=file_name,
                                                           amount=int(request['transactionValue']),
