@@ -10,6 +10,9 @@ class CheckSlip:
 
         self.__payment_identifiers = ['total', 'deposits']
 
+        # for text in self.__parsed_text['text']:
+        #     print(text)
+
     @staticmethod
     def levenshtein_distance(seq1, seq2):
         size_x = len(seq1) + 1
@@ -37,7 +40,7 @@ class CheckSlip:
         # print (matrix)
         return matrix[size_x - 1, size_y - 1]
 
-    def get_row_values(self, match_location, threshold=10):
+    def get_row_values(self, match_location, threshold=20):
         parsed_data_location = match_location[0]
         confidence = match_location[2]
         left = match_location[3]
@@ -46,7 +49,7 @@ class CheckSlip:
         total_count = len(self.__parsed_text['text'])
         possible_texts = []
         for i in range(parsed_data_location, total_count):
-            # print(self.__parsed_text['left'][i], self.__parsed_text['top'][i])
+            # print(top, self.__parsed_text['top'][i])
             if abs(top - self.__parsed_text['top'][i]) < threshold:
                 # print(self.__parsed_text['text'][i])
                 possible_texts.append([self.__parsed_text['text'][i],
@@ -110,6 +113,8 @@ class CheckSlip:
         ss = ''
         for i in possible_trans_no_parts:
             ss += i
+        if len(ss) < 5:
+            confidence = 10
 
         return ss, confidence
 

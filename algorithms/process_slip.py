@@ -1,4 +1,4 @@
-import os
+import cv2
 from algorithms.check_slip import CheckSlip
 from algorithms.process_image import ProcessImage
 from algorithms.extract_characters import ExtractCharacters
@@ -16,12 +16,12 @@ class ProcessSlip:
         extract_characters = ExtractCharacters(thresholded_image=thresholded_image)
         parsed_text = extract_characters.extract()
 
-        # print(parsed_text)
+        # print(parsed_text['text'])
         check_slip = CheckSlip(parsed_text=parsed_text)
         account_verified = check_slip.check_account_number(account_number=account_number)
         amount_verified = check_slip.check_payment(amount=amount)
         transaction_number, confidence = check_slip.check_transaction_number()
-
+        # print(account_verified, amount_verified, transaction_number, confidence,'\n')
         # cv2.imshow('thresholded image', thresholded_image)
         # cv2.waitKey(0)
         # cv2.destroyAllWindows()
@@ -34,18 +34,19 @@ class ProcessSlip:
 
 if __name__ == '__main__':
     pass
-    special_check = None  # '1599152317.jpg'
-    with open('total_results.txt', 'w') as f:
-        for root, dirs, files in os.walk("../test_data", topdown=False):
-            for name in files:
-                if special_check is not None:
-                    if special_check in name:
-                        path = os.path.join(root, name)
-                        s = 'File path {0}\n'.format(path)
-                        print(s)
-                        f.write(str(ProcessSlip.do_the_thing(path)))
-                else:
-                    path = os.path.join(root, name)
-                    s = 'File path {0}\n'.format(path)
-                    print(s)
-                    f.write(str(ProcessSlip.do_the_thing(path)))
+    # special_check = None  # '1599152317.jpg'
+    # with open('total_results.txt', 'w') as f:
+    #     for root, dirs, files in os.walk("../test_data/Data-0", topdown=False):
+    #         for name in files:
+    #             if special_check is not None:
+    #                 if special_check in name:
+    #                     path = os.path.join(root, name)
+    #                     s = 'File path {0}'.format(path)
+    #                     print(s)
+    #                     f.write(str(ProcessSlip.do_the_thing(path)))
+    #             else:
+    #                 path = os.path.join(root, name)
+    #                 s = 'File path {0}'.format(path)
+    #                 print(s)
+    #                 f.write(str(ProcessSlip.do_the_thing(path)))
+    ProcessSlip.do_the_thing('../test_data/1599028073.jpg', account_number='016210004000', amount=2000)

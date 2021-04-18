@@ -1,5 +1,6 @@
 import cv2
 import numpy as np
+from copy import deepcopy
 
 
 class ProcessImage:
@@ -185,19 +186,112 @@ class ProcessImage:
             if max_area_contour is not None:
                 warped_image = self.__perspective_correction(contour=max_area_contour)
             else:
-                warped_image = self.__resized_image
+                warped_image = self.correct_rotation(self.__resized_image)
+                # warped_image = self.__resized_image
 
             thresholded_image = self.threshold_image(warped_image)
         else:
-            thresholded_image = self.threshold_image(self.__resized_image)
+            rotation_corrected_image = self.correct_rotation(self.__resized_image)
+            thresholded_image = self.threshold_image(rotation_corrected_image)
 
         return thresholded_image
 
+    def slope(self, x1, y1, x2, y2):
+        if x1 == x2:
+            return 0
+        slope = (y2 - y1) / (x2 - x1)
+        theta = np.rad2deg(np.arctan(slope))
+        return theta
+
+    def rotate(self, img, theta):
+        rows, cols = img.shape[0], img.shape[1]
+        image_center = (cols / 2, rows / 2)
+
+        M = cv2.getRotationMatrix2D(image_center, theta, 1)
+
+        abs_cos = abs(M[0, 0])
+        abs_sin = abs(M[0, 1])
+
+        bound_w = int(rows * abs_sin + cols * abs_cos)
+        bound_h = int(rows * abs_cos + cols * abs_sin)
+
+        M[0, 2] += bound_w / 2 - image_center[0]
+        M[1, 2] += bound_h / 2 - image_center[1]
+
+        # rotate orignal image to show transformation
+        rotated = cv2.warpAffine(img, M, (bound_w, bound_h), borderValue=(255, 255, 255))
+        return rotated
+
+    def correct_rotation(self, image):
+        print('rotation correction applied')
+        # print(type(image))
+        img = deepcopy(image)
+        # print(type(img))
+        gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+        # edges = cv2.Canny(gray, 50, 150, apertureSize=3)
+        edges = cv2.adaptiveThreshold(gray, 255, cv2.ADAPTIVE_THRESH_GAUSSIAN_C, cv2.THRESH_BINARY_INV,11, 6)
+        # edges = 255 - edges
+        kernel = np.ones((3, 3), np.uint8)
+        # edges = cv2.erode(edges, kernel, iterations=1)
+        edges = cv2.dilate(edges, kernel, iterations=1)
+        # edges = cv2.erode(edges, kernel, iterations=1)
+
+        # cv2.imshow('edges', edges)
+
+        contours, hierarchy = cv2.findContours(edges.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_NONE)
+
+        angles = []
+        for contour in contours:
+            rect = cv2.minAreaRect(contour)
+            box = cv2.boxPoints(rect)
+            box = np.int0(box)
+            cv2.drawContours(img, [box], 0, (0, 0, 255), 2)
+            theta = self.slope(box[0][0], box[0][1], box[1][0], box[1][1])
+            if abs(theta) < 45:
+                angles.append(theta)
+                # print(theta)
+
+        orientation = sum(angles)/len(angles)
+        print('Orientation Correction', orientation)
+        finalImage = self.rotate(image, orientation)
+
+        # cv2.imshow('contours', img)
+
+        # minLineLength = 100
+        # maxLineGap = 100
+        # lines = cv2.HoughLinesP(edges, 1, np.pi / 180, 100, minLineLength, maxLineGap)
+        # # print(lines[0])
+        # for i in lines:
+        #     # print(i)
+        #     x1, y1, x2, y2 = i[0]
+        #     cv2.line(img, (x1, y1), (x2, y2), (0, 255, 0), 2)
+
+        #
+        # lines = cv2.HoughLines(edges, 1, np.pi / 180, 200)
+        # # print(len(lines))
+        # for line in lines:
+        #     rho, theta = line[0]
+        #     a = np.cos(theta)
+        #     b = np.sin(theta)
+        #     x0 = a * rho
+        #     y0 = b * rho
+        #     x1 = int(x0 + 1000 * (-b))
+        #     y1 = int(y0 + 1000 * (a))
+        #     x2 = int(x0 - 1000 * (-b))
+        #     y2 = int(y0 - 1000 * (a))
+        #
+        #     cv2.line(img, (x1, y1), (x2, y2), (0, 0, 255), 2)
+
+        # cv2.imshow('lines', img)
+        # cv2.imshow('rotated', finalImage)
+        # cv2.waitKey()
+        return finalImage
+
 
 if __name__ == '__main__':
-    process_image = ProcessImage('../test_data/1602139426.jpg')
+    process_image = ProcessImage('../test_data/1602305321.jpg')
     thresholded_image = process_image.get_processed_image()
 
     cv2.imshow('thresholded image', thresholded_image)
     cv2.waitKey(0)
-    cv2.destroyWindow()
+    # cv2.destroyWindow()
